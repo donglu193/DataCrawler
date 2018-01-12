@@ -1,6 +1,7 @@
 import scrapy
 import json
-import pprint
+from pymongo import MongoClient
+
 
 class TestSpider(scrapy.Spider):
     name = "test"
@@ -12,15 +13,21 @@ class TestSpider(scrapy.Spider):
         ]
 
         for url in start_url:
-
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        data = json.loads(response.body)
 
-        filename = 'stockx-file.json'
+        data = json.loads(response.body, 'UTF-8')
+        # filename = 'stockx-file.json'
+        # f = open(filename, 'wb')
 
-        with open(filename, 'wb') as f:
-            f.write(str(data))
+        # for obj in data['Products']:
+        #     f.write(str(obj))
+        #     f.write('/n')
 
+        client = MongoClient('localhost:27017')
+        db = client.testDB
+
+        for obj in data['Products']:
+            db.shoes.insert_one(obj)
 
