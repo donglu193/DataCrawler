@@ -1,86 +1,87 @@
 import scrapy
 import json
 from pymongo import MongoClient
+import dbutilities
+import objutilities
 import datetime
-import time
 
 
 class TestSpider(scrapy.Spider):
     name = "test"
-    shoe_list = []
+    shoe_list = dbutilities.initial_shoe_list()
+    trans_timestamp = ''
+    counter = 0
 
     def start_requests(self):
 
-        start_url = self.get_url_list()
+        print '------Transaction started------'
+
+        start_url = objutilities.get_url_list()
+
+        #initiate the transaction time
+        self.trans_timestamp = str(datetime.datetime.now())
+        print '------Transaction time: ' + self.trans_timestamp
+
+        #set the defautl counter for the transaction
+        self.counter = 1
 
         for url in start_url:
+
+            print '------Start to process url: ' + url
             yield scrapy.Request(url=url, callback=self.parse)
+            print '------finished process url------'
+
+        print '------Transaction Completeted-------'
 
     def parse(self, response):
 
         data = json.loads(response.body, 'UTF-8')
 
-        ### Saving data to file
-        # filename = 'stockx-file.json'
-        # f = open(filename, 'wb')
-
-        # for obj in data['Products']:
-        #     f.write(str(obj))
-        #     f.write('/n')
-
         client = MongoClient('localhost:27017')
         db = client.testDB
-        ### Saving data to file
-        # for obj in data['Products']:
-        #     db.shoes.insert_one(obj)
 
         for obj in data['Products']:
 
+            if_exist = False
             snkrs_name = obj['urlKey']
-            sneaker = self.get_identity_obj('Admin', snkrs_name)
 
-            if snkrs_name not in self.shoe_list:
+
+            for shoe in self.shoe_list:
+                if shoe['name'] == snkrs_name:
+                    if_exist = True
+                    if shoe.has_key('transtime') == False or shoe['transtime'] != self.trans_timestamp:
+
+                        #update the transaction time of the current shoe
+                        #in case to get duplicate entry for the same update
+                        shoe['transtime'] = self.trans_timestamp
+
+                        #update obj body to add trasction time and unique Id
+                        obj['uniqueId'] = shoe['uniqueId']
+                        obj['transaction_time'] = self.trans_timestamp
+
+                        print '---Inserting shoes into shoes collection: ' + snkrs_name
+                        db.shoes.insert_one(obj)
+                    break
+
+            #take care of the case when the shoes is not in the cache list
+            if if_exist == False:
+                #Get identity object
+                print '---Pushing the shoes into cache list ' + snkrs_name
+                sneaker = objutilities.get_identity_obj('Admin', snkrs_name, self.counter)
+                self.counter = self.counter + 1
+
+                #Add to the list in memory
+                self.shoe_list.append(sneaker)
+
+                #Add to the db
+                print '---Inserting shoes into shoe identity collection ' + snkrs_name
                 db.shoe_identity.insert_one(sneaker)
-                self.shoe_list.append(snkrs_name)
 
-    def get_identity_obj(self, userId, sneakerName):
-        sneaker = {}
-        sneaker['name'] = sneakerName
-        sneaker['uniqueId'] = 'SNKRS-' + str(time.time())
-        sneaker['createdby'] = userId
-        sneaker['timecreated'] = str(datetime.datetime.now())
+                obj['uniqueId'] = sneaker['uniqueId']
+                obj['transaction_time'] = self.trans_timestamp
 
-        return sneaker
+                print '---Inserting shoes into shoes collection: ' + snkrs_name
+                db.shoes.insert_one(obj)
 
-    def get_url_list(self):
 
-        list = []
-
-        search_keyword = [
-            'featured',
-            'most-active',
-            'recent_asks',
-            'recent_bids',
-            'average_deadstock_price',
-            'deadstock_sold',
-            'volatility',
-            'price_premium',
-            'last_sale',
-            'lowest_ask',
-            'highest_bid'
-        ]
-        for key in search_keyword:
-            for i in range(25):
-                sort = 'DESC'
-
-                if key == 'lowest_ask':
-                    sort = 'ASC'
-                url = 'https://stockx.com/api/browse?_tags=sneakers&' \
-                      'productCategory=sneakers&sort=' + key + \
-                      '&order=' + sort +\
-                      '&page=' + \
-                str(i +1)
-                list.append(url)
-
-        return list
 
