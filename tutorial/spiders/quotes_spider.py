@@ -13,16 +13,5 @@ class QuotesSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-
-        print "I am in the spider quotes"
-
-        for quote in response.css('div.quote'):
-            # yield {
-            #     'text': quote.css('span.text::text').extract_first(),
-            #     'author': quote.css('small.author::text').extract_first(),
-            #     'tags': quote.css('div.tags a.tag::text').extract(),
-            # }
-
-            print quote.css('span.text::text').extract_first()
-            print quote.css('small.author::text').extract_first()
-            print quote.css('div.tags a.tag::text').extract()
+        print 'printing......'
+        print response.url

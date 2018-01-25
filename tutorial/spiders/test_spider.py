@@ -26,12 +26,7 @@ class TestSpider(scrapy.Spider):
         self.counter = 1
 
         for url in start_url:
-
-            print '------Start to process url: ' + url
             yield scrapy.Request(url=url, callback=self.parse)
-            print '------finished process url------'
-
-        print '------Transaction Completeted-------'
 
     def parse(self, response):
 
