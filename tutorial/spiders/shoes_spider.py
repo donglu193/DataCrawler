@@ -7,7 +7,7 @@ import datetime
 
 
 class TestSpider(scrapy.Spider):
-    name = "test"
+    name = "shoes"
     shoe_list = dbutilities.initial_shoe_list()
     trans_timestamp = ''
     counter = 0
