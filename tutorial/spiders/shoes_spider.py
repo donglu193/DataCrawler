@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import dbutilities
 import objutilities
 import datetime
+import redisutilities
 
 
 class TestSpider(scrapy.Spider):
