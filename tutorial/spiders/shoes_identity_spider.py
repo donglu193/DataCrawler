@@ -13,7 +13,7 @@ class TestSpider(scrapy.Spider):
 
     def start_requests(self):
 
-        start_url = objutilities.get_url_list()
+        start_url = objutilities.get_url_list('sneakers')
 
         for url in start_url:
             yield scrapy.Request(url=url, callback=self.parse)

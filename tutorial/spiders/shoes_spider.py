@@ -17,7 +17,7 @@ class TestSpider(scrapy.Spider):
 
         print '------Transaction started------'
 
-        start_url = objutilities.get_url_list()
+        start_url = objutilities.get_url_list('sneakers')
 
         #initiate the transaction time
         self.trans_timestamp = str(datetime.datetime.now())
