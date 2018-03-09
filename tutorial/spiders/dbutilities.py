@@ -11,3 +11,15 @@ def initial_shoe_list():
         shoe_list.append(shoe)
 
     return shoe_list
+
+
+def initial_streetwear_list():
+    client = MongoClient('localhost:27017')
+    db = client.testDB
+
+    streetwear_list = []
+
+    for clothes in db.streetwear_identity.find():
+        streetwear_list.append(clothes)
+
+    return streetwear_list

@@ -12,7 +12,17 @@ def get_identity_obj(userId, sneakerName, counter):
     return sneaker
 
 
-def get_url_list():
+def get_streetwear_obj(userId, name, counter):
+    streetwear = {}
+    streetwear['name'] = name
+    streetwear['uniqueId'] = 'STRWR-' + str(counter) + '-' + str(time.time())
+    streetwear['createdby'] = userId
+    streetwear['timecreated'] = str(datetime.datetime.now())
+
+    return streetwear
+
+
+def get_url_list(category):
 
         list = []
 
@@ -35,8 +45,8 @@ def get_url_list():
 
                 if key == 'lowest_ask':
                     sort = 'ASC'
-                url = 'https://stockx.com/api/browse?_tags=sneakers&' \
-                      'productCategory=sneakers&sort=' + key + \
+                url = 'https://stockx.com/api/browse?_tags=' + category + '&' \
+                      'productCategory=' + category + '&sort=' + key + \
                       '&order=' + sort +\
                       '&page=' + \
                 str(i +1)
