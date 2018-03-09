@@ -23,6 +23,3 @@ def get_list(name):
     return r.smembers(name)
 
 
-_init_shoes_identity()
-list = get_list('shoes_identity')
-print len(list)
