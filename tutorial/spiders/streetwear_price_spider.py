@@ -57,7 +57,7 @@ class TestSpider(scrapy.Spider):
         for item in db.streetwear_identity.find():
             print item['uniqueId']
             # find returns a cursor
-            streetwear_list = db.streetwear.find({"uniqueId": item['uniqueId']}).sort([('_id', -1)]).limit(1)
+            streetwear_list = db.streetwear.find({"uniqueId": item['uniqueId']}, {"objectID":1}).sort([('_id', -1)]).limit(1)
             if streetwear_list.count() > 0:
                 streetwear = streetwear_list[0]
                 print streetwear['objectID']

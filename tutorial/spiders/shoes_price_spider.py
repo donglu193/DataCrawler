@@ -57,7 +57,7 @@ class TestSpider(scrapy.Spider):
         for item in db.shoe_identity.find():
             print item['uniqueId']
             # find returns a cursor
-            shoe_list = db.shoes.find({"uniqueId": item['uniqueId']}).sort([('_id', -1)]).limit(1)
+            shoe_list = db.shoes.find({"uniqueId": item['uniqueId']}, {"objectID":1}).sort([('_id', -1)]).limit(1)
             if shoe_list.count() > 0:
                 shoe = shoe_list[0]
                 print shoe['objectID']
@@ -67,4 +67,6 @@ class TestSpider(scrapy.Spider):
                 list.append(sneaker_obj)
 
         return list
+
+
 
